@@ -1,0 +1,62 @@
+const express = require('express');
+const app = express();
+const port = 3000;
+
+// Middleware para aceitar JSON no body das requisições
+app.use(express.json());
+
+// Array para armazenar os usuários (simulação de banco de dados em memória)
+const usuarios = [];
+
+// Rota inicial
+app.get('/', (req, res) => {
+    res.send('Servidor Node + Express rodando!');
+});
+
+// Rota para obter os usuários (GET)
+app.get('/usuario', (req, res) => {
+    res.json(usuarios); // Retorna o array de usuários
+});
+
+// Rota para cadastrar um usuário ( usando POST, mas é provisório)
+app.post('/usuario', (req, res) => {
+    const { nome, email, senha } = req.body;
+
+    // Validação básica dos campos
+    if (!nome || !email || !senha) {
+        return res.status(400).json({ mensagem: 'Todos os campos são obrigatórios!' });
+    }
+
+    // Verifica se o e-mail já existe (simulação de unicidade, lembrar de colocar )
+    if (usuarios.some(usuario => usuario.email === email)) {
+        return res.status(409).json({ mensagem: 'Este e-mail já está cadastrado!' });
+    }
+
+    // Adiciona o novo usuário ao array (simulando salvar no banco)
+    usuarios.push({ nome, email, senha });
+    console.log('Novo usuário cadastrado:', nome, email);
+
+    return res.status(201).json({ mensagem: 'Usuário cadastrado com sucesso!' });
+});
+
+// Rota de login (exemplo básico - para um app real, tem q usar autenticação mais segura)
+app.post('/api/login', (req, res) => {
+    const { email, senha } = req.body;
+
+    if (!email || !senha) {
+        return res.status(400).json({ mensagem: 'E-mail e senha são obrigatórios!' });
+    }
+
+    const usuario = usuarios.find(user => user.email === email && user.senha === senha);
+
+    if (usuario) {
+        return res.status(200).json({ mensagem: 'Login realizado com sucesso!' });
+    } else {
+        return res.status(401).json({ mensagem: 'Credenciais inválidas!' });
+    }
+});
+
+// Iniciar o servidor
+app.listen(port, () => {
+    console.log(Servidor rodando na porta ${port});
+});
